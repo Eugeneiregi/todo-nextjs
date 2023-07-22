@@ -1,118 +1,136 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
+import { useState } from 'react';
 
-const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+
+
+const TodoItem = ({ todo }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      // alignItems: 'center',
+      justifyContent: 'space',
+      alignItems: 'flex-start',
+      padding: '10px',
+      borderBottom: '1px solid #ccc',
+      fontSize: '20px',
+      // fontWeight: 'bold',
+    }}
+  >
+  <p style={{ margin: '5px 0px 10px' }}>
+  <strong>UserID:</strong> {todo.userId}
+</p>
+<p style={{ margin: '5px 0px 10px' }}>
+  <strong>ID:</strong> {todo.id}
+</p>
+<p style={{ margin: '5px 0px 10px' }}>
+  <strong>Title:</strong> {todo.title}
+</p>
+<p style={{ margin: '5px 0px 10px' }}>
+  <strong>Completed:</strong> {todo.completed ? 'true' : 'false'}
+</p>
+</div>
+
+);
+
+const TodoList = ({ todos }) => (
+  
+  <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+    {todos.length === 0 ? (
+      <p>No results found</p> // Display this message when there are no results
+    ) : (
+      todos.map((todo) => <TodoItem key={todo.id} todo={todo} />)
+    )}
+  </div>
+);
+
+const Home = ({ initialTodos }) => {
+  const [numRequests, setNumRequests] = useState(0);
+  const [todos, setTodos] = useState(initialTodos);
+
+  const handleNumRequestsChange = (e) => {
+    setNumRequests(parseInt(e.target.value));
+  };
+
+  const handleFetchTodos = async () => {
+    try {
+      const responses = await Promise.all(
+        Array.from({ length: numRequests }, (_, i) =>
+          fetch(`https://jsonplaceholder.typicode.com/todos/${Math.floor(Math.random() * 100) + 1}`)
+        )
+      );
+      const todosData = await Promise.all(responses.map((response) => response.json()));
+      setTodos(todosData);
+      setNumRequests(0); // Clear the input state after fetching todos and displaying the result
+    } catch (error) {
+      console.error('Error fetching todos:', error);
+    }
+  };
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        backgroundColor: 'lightgray',
+      }}
     >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/pages/index.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: '#ECE6F0',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+          width: '400px', // Set a fixed width for the container
+        }}
+      >
+        <input
+          type="number"
+          value={numRequests}
+          onChange={handleNumRequestsChange}
+          style={{
+            width: '200px', // Set a fixed width for the input textbox
+            fontSize: '18px',
+            padding: '10px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            marginRight: '10px',
+          }}
         />
+        <button
+          onClick={handleFetchTodos}
+          style={{ backgroundColor: 'purple',color: 'white', fontSize: '18px', padding: '12px 25px', borderRadius: '8px', width: '140px' }}
+        >
+          Search
+        </button>
       </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
+      {todos && (
+        <div
+          style={{
+            marginTop: '20px',
+            backgroundColor: '#ECE6F0',
+            padding: '20px',
+            height: '',
+            borderRadius: '8px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+            width: '400px', // Set a fixed width for the result container
+          }}
         >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
+          <TodoList todos={todos} />
+        </div>
+      )}
+    </div>
+  );
+};
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
+// Implement getServerSideProps as before...
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+export default Home;
