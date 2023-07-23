@@ -34,7 +34,15 @@ const TodoItem = ({ todo }) => (
 );
 
 const TodoList = ({ todos }) => {
-  const sortedTodos = todos.slice().sort((a, b) => a.title.localeCompare(b.title));
+  const sortedTodos = todos.slice().sort((a, b) => {
+    // Sort todos with 'completed: false' first, then 'completed: true'
+    if (a.completed === b.completed) {
+      // If both todos have the same 'completed' value, sort alphabetically by 'title'
+      return a.title.localeCompare(b.title);
+    }
+    // Otherwise, sort by 'completed' value ('false' comes before 'true')
+    return a.completed ? 1 : -1;
+  });
 
   if (sortedTodos.length === 0) {
     return (
@@ -43,31 +51,7 @@ const TodoList = ({ todos }) => {
       </div>
     );
   }
-  const TodoList = ({ todos }) => {
-    const sortedTodos = todos.slice().sort((a, b) => a.title.localeCompare(b.title));
-  
-    const transitions = useTransition(sortedTodos, {
-      from: { opacity: 0 },
-      enter: { opacity: 1 },
-      leave: { opacity: 0 },
-    });
-  
-    return (
-      <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-        {transitions((style, todo) =>
-          todo ? (
-            <animated.div style={{ ...style }}>
-              <TodoItem key={todo.id} todo={todo} />
-            </animated.div>
-          ) : (
-            <animated.div style={{ ...style, display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-              <p>No results found</p>
-            </animated.div>
-          )
-        )}
-      </div>
-    );
-  };
+
   const transitions = useTransition(sortedTodos, {
     from: { opacity: 0 },
     enter: { opacity: 1 },
@@ -131,7 +115,6 @@ const Home = ({ initialTodos }) => {
           width: '400px', // Set a fixed width for the container
         }}
       >
-        
         <input
           type="number"
           value={numRequests}
