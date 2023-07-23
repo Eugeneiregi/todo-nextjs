@@ -1,50 +1,89 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
 import { useState } from 'react';
-
-
-
+import { useTransition, animated } from 'react-spring';
+import Image from 'next/image';
+import { Inter } from 'next/font/google';
 
 const TodoItem = ({ todo }) => (
   <div
     style={{
       display: 'flex',
       flexDirection: 'column',
-      // alignItems: 'center',
       justifyContent: 'space',
       alignItems: 'flex-start',
       padding: '10px',
       borderBottom: '1px solid #ccc',
       fontSize: '20px',
-      // fontWeight: 'bold',
     }}
   >
-  <p style={{ margin: '5px 0px 10px' }}>
-  <strong>UserID:</strong> {todo.userId}
-</p>
-<p style={{ margin: '5px 0px 10px' }}>
-  <strong>ID:</strong> {todo.id}
-</p>
-<p style={{ margin: '5px 0px 10px' }}>
-  <strong>Title:</strong> {todo.title}
-</p>
-<p style={{ margin: '5px 0px 10px' }}>
-  <strong>Completed:</strong> {todo.completed ? 'true' : 'false'}
-</p>
-</div>
-
-);
-
-const TodoList = ({ todos }) => (
-  
-  <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-    {todos.length === 0 ? (
-      <p>No results found</p> // Display this message when there are no results
-    ) : (
-      todos.map((todo) => <TodoItem key={todo.id} todo={todo} />)
-    )}
+    <p style={{ color: 'green' }}>
+      <strong>Results</strong>
+    </p>
+    <p style={{ margin: '5px 0px 10px' }}>
+      <strong>UserID:</strong> {todo.userId}
+    </p>
+    <p style={{ margin: '5px 0px 10px' }}>
+      <strong>ID:</strong> {todo.id}
+    </p>
+    <p style={{ margin: '5px 0px 10px' }}>
+      <strong>Title:</strong> {todo.title}
+    </p>
+    <p style={{ margin: '5px 0px 10px' }}>
+      <strong>Completed:</strong> {todo.completed ? 'true' : 'false'}
+    </p>
   </div>
 );
+
+const TodoList = ({ todos }) => {
+  const sortedTodos = todos.slice().sort((a, b) => a.title.localeCompare(b.title));
+
+  if (sortedTodos.length === 0) {
+    return (
+      <div style={{ maxHeight: '40px', overflowY: 'auto', display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+        <p>No results found</p>
+      </div>
+    );
+  }
+  const TodoList = ({ todos }) => {
+    const sortedTodos = todos.slice().sort((a, b) => a.title.localeCompare(b.title));
+  
+    const transitions = useTransition(sortedTodos, {
+      from: { opacity: 0 },
+      enter: { opacity: 1 },
+      leave: { opacity: 0 },
+    });
+  
+    return (
+      <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        {transitions((style, todo) =>
+          todo ? (
+            <animated.div style={{ ...style }}>
+              <TodoItem key={todo.id} todo={todo} />
+            </animated.div>
+          ) : (
+            <animated.div style={{ ...style, display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+              <p>No results found</p>
+            </animated.div>
+          )
+        )}
+      </div>
+    );
+  };
+  const transitions = useTransition(sortedTodos, {
+    from: { opacity: 0 },
+    enter: { opacity: 1 },
+    leave: { opacity: 0 },
+  });
+
+  return (
+    <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+      {transitions((style, todo) => (
+        <animated.div style={{ ...style }}>
+          <TodoItem key={todo.id} todo={todo} />
+        </animated.div>
+      ))}
+    </div>
+  );
+};
 
 const Home = ({ initialTodos }) => {
   const [numRequests, setNumRequests] = useState(0);
@@ -92,6 +131,7 @@ const Home = ({ initialTodos }) => {
           width: '400px', // Set a fixed width for the container
         }}
       >
+        
         <input
           type="number"
           value={numRequests}
@@ -107,7 +147,7 @@ const Home = ({ initialTodos }) => {
         />
         <button
           onClick={handleFetchTodos}
-          style={{ backgroundColor: 'purple',color: 'white', fontSize: '18px', padding: '12px 25px', borderRadius: '8px', width: '140px' }}
+          style={{ backgroundColor: 'purple', color: 'white', fontSize: '18px', padding: '12px 25px', borderRadius: '8px', width: '140px' }}
         >
           Search
         </button>
